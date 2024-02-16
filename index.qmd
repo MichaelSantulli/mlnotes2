@@ -1,7 +1,466 @@
 ---
-title: "/"
+title: "Intro to Machine Learning Notes"
+subtitle: "Introduction to Machine Learning/Statistical Analysis and Learning"
 ---
 
-This is a Quarto website.
+## R Setup
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+```{r}
+#| output = FALSE
+#Load packages for chapter labs
+library("ISLR2") #Introduction to Statistical Learning datasets'
+library("tidyverse")
+```
+
+## Week 1 Notes
+
+Types of machine learning:
+
+-   Supervised learning
+
+    -   Regression models - quantitative/continous output
+    -   Classification models - qualitative/discrete output
+
+-   Unsupervised learning
+
+    -   Clustering models - patterns from input data without specified output
+
+Why study statistical learning?
+
+-   Inference - how does a particular input drive an output variable
+
+-   Prediction - only the value of the outcome variable is of interest
+
+    -   Example: "How much rainfall will California have in 2050?"?
+
+## Chapter 2: Statistical Learning Introduction
+
+### Notes
+
+Shared assumptions of linear and non-linear statistical models for estimating *f*:
+
+-   Parametric vs. non-parametric
+
+-   Flexibility (complexity) vs. interpretability
+
+    -   Flexible models are beneficial for prediction
+    -   Interpretable models are beneficial for inference
+
+-   Supervised vs. unsupervised learning
+
+    -   Unsupervised has no specified outcome variable
+
+How to determine the best statistical model for a problem
+
+-   Quality of fit
+
+-   Variance/Bias tradeoff
+
+    -   Variance: the amount by which $\hat{f}$ would change if estimated with a different training set
+    -   Bias: the error that is introduced by approximating a real-life problem, which may be extremely complicated, by a much simpler model.
+    -   In general, with more flexible methods, variance increases and bias decreases
+
+Inference vs. Prediction
+
+-   Sometimes both are of interest, but often only one is of primary interest. The goals of the analyst here are the primary driver in selecting a model
+
+How do we estimate *f*?
+
+-   Training data used to estimate *f*
+
+-   Parametric approach
+
+    -   Step 1: Specify an estimated functional form for *f* (i.e. a linear function)
+
+    -   Step 2: Training data is used to estimate the parameters of the function
+
+    -   Disadvantage of parametric methods: not well suited to estimate a function for a complex dataset
+
+-   Non-parametric approach
+
+    -   Avoids the assumption of a particular functional form for *f*
+
+    -   Disadvantage: they require very large data sets to make an accurate prediction of *f*
+
+Why would we ever choose to use a more restrective method instead of a very flexible approach?
+
+-   Interpretability, inference, to avoid overfitting
+
+Should we always choose a more complex (flexible) approach when prediction is the objective?
+
+-   Only if there is a very large dataset. With a small amount of data, more complexity is not always good
+
+Measuring the Quality of Fit
+
+-   Mean Squared Error (MSE)
+
+    $$
+    MSE = \frac{1}{n}\sum_{i=1}^n(y_i-\hat{f}(x_i))^2
+    $$
+
+-   Training MSE vs. Test MSE
+
+-   Why does *training* MSE always decrease with added flexibility?
+
+    -   With enough flexibility you can get your model to perfectly fit the training data (but *test* MSE would be much worse)
+
+-   highest quality of fit does not equal the best predictive model (overfitting)
+
+### Lab: Intro to R
+
+`c()` Create a vector of items
+
+`length()` Returns the length of a vector
+
+`ls()` Lists all objects such as data and functions saved in the environment
+
+`rm()` Remove an object from the environment
+
+`matrix(data = , nrow = , ncol =)` Create a matrix
+
+`sqrt()` calculate the square root
+
+`rnorm(n)` Generates a vector of random normal variables of ~n~ sample size
+
+`cor(x, y)` Calculates the correlation between two sets of numbers
+
+`set.seed()` Used to set a consistent seed for a random number function
+
+`mean()` Mean
+
+`var()` Variance
+
+`sd()` Standard Deviation
+
+`plot()` Basic plotting function
+
+`countour()` Creates a countour plot to represent 3D data
+
+```{r}
+x <- seq(1,10)
+x
+x <- 1:10
+x
+x <- seq(-pi, pi, length = 50)
+
+y <- x
+f <- outer(x, y, function(x, y) cos(y) / (1 + x^2))
+
+contour(x, y, f)
+contour(x, y, f, nlevels = 45, add = T)
+fa <- (f - t(f)) / 2
+contour(x, y, fa, nlevels = 15)
+```
+
+`image()` Produces a heatmap plot
+
+`persp()` Creates a 3D plot, arguments `theta` and `phi` control the viewing angles
+
+```{r}
+image(x, y, fa)
+persp(x, y, fa)
+persp(x, y, fa, theta = 30)
+persp(x, y, fa, theta = 30, phi = 20)
+persp(x, y, fa, theta = 30, phi = 70)
+persp(x, y, fa, theta = 30, phi = 40)
+```
+
+`dim()` Dimension function returns the number of rows and columns of a matrix
+
+`read.table()` Import data
+
+`write.table()` Export data
+
+Data Frame functions
+
+`data.frame()` Create a data frame
+
+`str()` Used to view a list of variables and first few observations in a data table
+
+`subset()` Used to filter a data table
+
+`order()` Used to return the order of a vector, can sort a data table
+
+`list()` Create a list
+
+## Chapter 3: Linear Regression
+
+### Notes
+
+Inference problem example - which advertising strategy will lead to higher product sales next year?
+
+*Simple linear regression* is a a method for predicting a quantitative response *Y* on the basis of a single predictor variable *X*. A simple model uses the equation:
+
+$$
+Y \approx \beta_0 + \beta_1x_1
+$$ Residual Sum of Squares (RSS) is the sum of differences between the observed vaues and predicted values
+
+Least squares estimation method minimizes RSS to created an estimation line with the equation above. $\beta_1$ and $\beta_0$ are computable from the predictors and outcomes in the dataset
+
+Standard Errors for OLS estimates
+
+Hypothesis testing steps - if the regression shows a positive or negative sloped line based on the sample, how can we be sure that it is *not* actually a flat line in the population?
+
+1.  estimate parameters and standard errors
+
+2.  calculate t-statistic
+
+3.  Find the corresponding p value
+
+    -   When the t-statistic is large and the p value is low, we can reject the null hypothesis
+
+Accuracy of the model: how well does the model fit the data?
+
+-   *RSE* (Residual Standard Error)
+
+    -   How far on average are the actual outcomes from the prediction line?
+
+-   $R^2$ statistic
+
+    -   A proportional measure always between 0 and 1 that shows how much variation in the data is explained by the model
+
+    -   Can $R^2$ be negative? Technically yes if the model is very bad
+
+-   *F-*statistic
+
+    -   Not about significance but about whether you can reject the null hypothesis for the whole model
+
+Multiple Linear Regression
+
+Important questions in MLR:
+
+1.  Is at least one of the predictors useful in predicting the response? Check with the F-statistic
+
+2.  Do all the predictors help to explain Y, or is only a subset of the predictors useful? Will be covered in Ch. 6
+
+3.  How well does the model fit the data?
+
+4.  Given a set of predictor values, what response value should we predict, and how accurate is our prediction?
+
+Confidence intervals connect the sample variable to the population variable within a certain degree of confidence. A 95% confidence interval says that 95% of random samples will fall within the interval.
+
+Potential problems in MLR:
+
+### Lab: Regression in R
+
+#### Simple Linear Regression
+
+Boston dataset: The outome variable `medv` is median home value by census tract
+
+```{r}
+library(MASS)
+
+#view the first 10 observations of the dataset
+head(Boston)
+
+#Create a regression equation 
+attach(Boston)
+lm.fit <- lm(medv ~ lstat)
+
+#View the regression results
+lm.fit
+
+#View details about the regression
+summary(lm.fit)
+
+#See what is stored in the lm.fit list
+names(lm.fit)
+
+#Function to view the coefficients of lm.fit
+coef(lm.fit)
+
+#View the confidence interval
+confint(lm.fit)
+
+#Generate confidence intervals for given values of lstat
+predict(lm.fit, data.frame(lstat = (c(5, 10, 15))), interval = "confidence")
+
+#Generate prediction intervals for given values of lstat
+predict(lm.fit, data.frame(lstat = (c(5, 10, 15))), interval = "prediction")
+
+#plot
+plot(lstat, medv)
+
+#Add the least squares line to the plot
+abline(lm.fit, lwd = 3, col = "red")
+
+#Use 'col =' to change the color of the points
+plot(lstat, medv, col = "red")
+
+#Use 'pch =' to change the shape of the points
+plot(lstat, medv, pch = 20)
+
+#Define the point shape directly
+plot(lstat, medv, pch = "+")
+
+#Define the point shape with a number
+plot(1:20, 1:20, pch = 1:20)
+
+
+par(mfrow = c(2,2))
+plot(lm.fit)
+
+plot(predict(lm.fit), residuals(lm.fit))
+plot(predict(lm.fit), rstudent(lm.fit))
+
+plot(hatvalues(lm.fit))
+which.max(hatvalues(lm.fit))
+
+```
+
+#### Multiple Linear Regression
+
+```{r}
+
+#Run a regression with specified predictors
+lm.fit <- lm(medv ~ lstat + age, data = Boston)
+summary(lm.fit)
+
+#Run a regression on all the predictor variables in the dataset
+lm.fit <- lm(formula = medv ~ ., data = Boston)
+summary(lm.fit)
+
+library(car)
+#Calculate variance inflation factors
+vif(lm.fit)
+
+#Run the regression all predictors except one (age) using the "-" sign
+lm.fit1 <- lm(medv ~ . - age, data = Boston)
+summary(lm.fit1)
+
+#Another way to change the model using update()
+lm.fit1 <- update(lm.fit, ~ . - age)
+
+
+```
+
+#### Interaction terms
+
+There are two ways to include interaction terms in the lm() funtion: $x_1:x_2$ creates an interaction term between the two variables. $x_1 * x_2$ creates an individual variable for each *plus* an interaction term.
+
+($x_1 * x_2$ is shorthand for $x_1 + x_2 + x_1:x_2$)
+
+```{r}
+#Run a regression with a predictor variable
+summary(lm(medv ~ lstat*age, data = Boston))
+```
+
+#### Non-linear transformations on predictors
+
+To transform a variable in `lm()`, use `I()`. For example, to square a predictor you would use `I(x^2)`.
+
+For higher order variables, use the `poly()` function.
+
+```{r}
+#Run a regression with a squared predictor term
+lm.fit2 <- lm(medv ~ lstat + I(lstat^2))
+summary(lm.fit2)
+
+#Use anova() to see if the quadratic fit is better than the original linear fit
+lm.fit <- lm(medv ~ lstat)
+anova(lm.fit, lm.fit2)
+
+par(mfrow = c(2,2))
+plot(lm.fit2)
+
+#Use the poly() function within lm() to generate a regression with higher order polynomials
+lm.fit5 <- lm(medv ~ poly(lstat, 5))
+summary(lm.fit5)
+
+#Generate a regression with a log-transformed variable
+summary(lm(medv ~ log(rm), data = Boston))
+
+```
+
+#### Qualitative predictors
+
+`lm()` automatically generates dummy variables in a regression on a dataset with qualitative variables.
+
+```{r}
+
+#Preview the Carseats dataset with information about carseat sales
+str(Carseats)
+
+#A regression on Carseats data with all variables and some interaction terms
+lm.fit <- lm(Sales ~ . + Income:Advertising + Price:Age, data = Carseats)
+summary(lm.fit)
+
+#Use contrasts() to view the coding scheme for a qualitative variable
+attach(Carseats)
+contrasts(ShelveLoc)
+```
+
+#### Writing functions in R
+
+```{r}
+#Write a function to load relevant libraries
+LoadLibraries <- function() {
+  library(ISLR2)
+  library(MASS)
+  print("The libraries have been loaded.")
+}
+
+
+```
+
+## Chapter 4: Classification
+
+### Notes
+
+Classification techniques are used when the dependent variable Y is qualitative or categorical.
+
+1.  Logistic regression
+    A.  Estimation process:
+        1.  Create probability functions to estimate coefficients based on training data
+        2.  Use new probability equation to predict probabilities
+        3.  Set a boundary (i.e. .5) to classy to one category or the other
+        4.  interpreting coefficients - change in log-odds, not change in probability
+    B.  Note: the coefficients estimated in logistic regression are the change in *log-odds*, however, these can be plugged back into an equation to calculate probability
+2.  Bayes Classifier
+    1.  Calculate probabilities of each classification outcome
+
+    2.  Bayes classifier picks the largest probability to assign a class
+
+    3.  What kind of data is needed to calculate probabilities in step 1? You need a lot of it to make accurate calculations, and sufficient data is not often available. It can, however, be used with simulated data for examples.
+3.  Linear Discriminant Analysis (LDA)
+    1.  Bayes Theorem - used to flip conditional probabilities
+    2.  Assumption - the distributions of X are normal or Gaussian
+    3.  Assumption - both the outcome distributions have the same variance (not an assumption of QDA)
+    4.  Data statistics needed to plug into the equation with two classes and one predictor: $\sigma, \pi_1, \pi_2, \mu_1, \mu_2$ where $\sigma$ is the shared variance, $\pi_1 and \pi_2$ are the prior probabilities of k = 1, 2, and $\mu_1 and \mu_2$ are the means
+4.  Quadratic Discriminant Analysis (QDA)
+5.  Naive Bayes
+
+Comparison of methods
+
+### Lab: Classification Methods in R
+
+```{r}
+names(Smarket)
+dim(Smarket)
+summary(Smarket)
+
+cor(Smarket[,-9])
+
+attach(Smarket)
+plot(Volume)
+```
+
+#### Logistic Regression
+
+The `glm()` function can be used for generalized linear models including logistic regression. Need to include the argument `family = binomial` to specify logistic regression as the method.
+
+```{r}
+#Construct a logistic regression model to predict the qualitative variable Direction
+glm.fits <- glm(
+  Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = Smarket, family = binomial
+)
+
+summary(glm.fits)
+
+```
+
+#### Linear Discriminant Analysis
+
+#### Quadratic Discriminant Analysis
+
+#### Naive Bayes
