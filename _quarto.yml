@@ -6,10 +6,9 @@ website:
   title: "Introduction to Machine Learning"
   navbar:
     left:
-      - href: index.qmd
+      - href: Machine Learning Notes.qmd
         text: Home
       - about.qmd
-      - Machine Learning Notes.qmd
 
 format:
   html:
