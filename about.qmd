@@ -2,4 +2,4 @@
 title: "About"
 ---
 
-About this site
+Notes for an introductory course on machine learning techniques using R.

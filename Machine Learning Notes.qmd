@@ -1,6 +1,5 @@
 ---
-title: "Intro to Machine Learning Notes"
-subtitle: "Introduction to Machine Learning/Statistical Analysis and Learning"
+title: "Notes and R Functions"
 ---
 
 ## R Setup
