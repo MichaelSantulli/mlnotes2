@@ -641,8 +641,6 @@ nb.preds[1:5,]
 ### Notes
 
 ```{r}
-#Test code for github pull
-add <- 2+2
-add
+
 ```
 
