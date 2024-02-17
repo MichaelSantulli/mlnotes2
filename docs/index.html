@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chapter-4-classification" id="toc-chapter-4-classification" class="nav-link" data-scroll-target="#chapter-4-classification">Chapter 4: Classification</a>
   <ul>
   <li><a href="#notes-2" id="toc-notes-2" class="nav-link" data-scroll-target="#notes-2">Notes</a></li>
-  <li><a href="#lab-classification-methods-in-r" id="toc-lab-classification-methods-in-r" class="nav-link" data-scroll-target="#lab-classification-methods-in-r">Lab: Classification Methods in R</a>
+  <li><a href="#lab-classification-models-in-r" id="toc-lab-classification-models-in-r" class="nav-link" data-scroll-target="#lab-classification-models-in-r">Lab: Classification Models in R</a>
   <ul>
   <li><a href="#logistic-regression" id="toc-logistic-regression" class="nav-link" data-scroll-target="#logistic-regression">Logistic Regression</a></li>
   <li><a href="#linear-discriminant-analysis" id="toc-linear-discriminant-analysis" class="nav-link" data-scroll-target="#linear-discriminant-analysis">Linear Discriminant Analysis</a></li>
@@ -953,8 +953,9 @@ Medium    0      1</code></pre>
 </ol>
 <p>Comparison of methods</p>
 </section>
-<section id="lab-classification-methods-in-r" class="level3">
-<h3 class="anchored" data-anchor-id="lab-classification-methods-in-r">Lab: Classification Methods in R</h3>
+<section id="lab-classification-models-in-r" class="level3">
+<h3 class="anchored" data-anchor-id="lab-classification-models-in-r">Lab: Classification Models in R</h3>
+<p>Summary of functions in R: <code>lm()</code> Linear regression <code>glm(...family = binomial)</code> Logistic regression <code>lda()</code> Linear Discriminant Analysis (from the MASS package) <code>qda()</code> Quadratic Discriminant Analysis (from the MASS package) <code>naiveBayes()</code> Naive Bayes (from the e1071 package)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(Smarket)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1078,10 +1079,147 @@ Volume       0.135440659 0.15835970  0.8552723 0.3924004</code></pre>
      Volume 
   0.3924004 </code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Predict the probability that the market will go up or down</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Set type = response to output probabilities of the form P(Y = 1|X)</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>glm.probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(glm.fits, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>glm.probs[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        1         2         3         4         5         6         7         8 
+0.5070841 0.4814679 0.4811388 0.5152224 0.5107812 0.5069565 0.4926509 0.5092292 
+        9        10 
+0.5176135 0.4888378 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Check whether the probability is of the market going up or down (it is Up)</span></span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(Direction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Up
+Down  0
+Up    1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a vector of predicted outcomes (up or down)</span></span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>glm.pred <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">"Down"</span>, <span class="dv">1250</span>)</span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>glm.pred[glm.probs <span class="sc">&gt;</span> .<span class="dv">5</span>] <span class="ot">=</span> <span class="st">"Up"</span></span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate a confusion matrix to see the correct and incorrect predictions</span></span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(glm.pred, Direction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Direction
+glm.pred Down  Up
+    Down  145 141
+    Up    457 507</code></pre>
+</div>
+</div>
+<p>When building and testing models it is useful to split the data into <em>training data</em> and <em>test data</em>. This way you can see well your model will work when exposed to new data.</p>
+<p>Step 1: Train the model</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Create vector of all observations before 2005</span></span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> (Year <span class="sc">&lt;</span> <span class="dv">2005</span>)</span>
+<span id="cb97-3"><a href="#cb97-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Use vector to create a dataset of observations only from 2005,</span></span>
+<span id="cb97-4"><a href="#cb97-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Boolean vectors can be used to obtain a subset of the rows or columns of a matrix.</span></span>
+<span id="cb97-5"><a href="#cb97-5" aria-hidden="true" tabindex="-1"></a>Smarket<span class="fl">.2005</span> <span class="ot">&lt;-</span> Smarket[<span class="sc">!</span>train,]</span>
+<span id="cb97-6"><a href="#cb97-6" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(Smarket<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 252   9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a>Direction<span class="fl">.2005</span> <span class="ot">&lt;-</span> Direction[<span class="sc">!</span>train]</span>
+<span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-3"><a href="#cb99-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Alternate method of filtering the data</span></span>
+<span id="cb99-4"><a href="#cb99-4" aria-hidden="true" tabindex="-1"></a>Smarket<span class="fl">.2005</span>b <span class="ot">&lt;-</span> <span class="fu">subset</span>(Smarket, Year <span class="sc">&gt;=</span> <span class="dv">2005</span>)</span>
+<span id="cb99-5"><a href="#cb99-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb99-6"><a href="#cb99-6" aria-hidden="true" tabindex="-1"></a><span class="co">#Fit a logistic regression model using only the subset of the observations that correspond to dates before 2005, using the subset argument.</span></span>
+<span id="cb99-7"><a href="#cb99-7" aria-hidden="true" tabindex="-1"></a>glm.fits <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb99-8"><a href="#cb99-8" aria-hidden="true" tabindex="-1"></a>  Direction <span class="sc">~</span> Lag1 <span class="sc">+</span> Lag2 <span class="sc">+</span> Lag3 <span class="sc">+</span> Lag4 <span class="sc">+</span> Lag5 <span class="sc">+</span> Volume,</span>
+<span id="cb99-9"><a href="#cb99-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> Smarket, <span class="at">family =</span> binomial, <span class="at">subset =</span> train</span>
+<span id="cb99-10"><a href="#cb99-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Step 2: Test the model with new data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Predict direction of the stock market for only the data in 2005</span></span>
+<span id="cb100-2"><a href="#cb100-2" aria-hidden="true" tabindex="-1"></a>glm.probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(glm.fits, Smarket<span class="fl">.2005</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Step 3: Compare the predictions to the actual outcomes in the test data</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a>glm.pred <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">"Down"</span>, <span class="dv">252</span>)</span>
+<span id="cb101-2"><a href="#cb101-2" aria-hidden="true" tabindex="-1"></a>glm.pred[glm.probs <span class="sc">&gt;</span> .<span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="st">"Up"</span></span>
+<span id="cb101-3"><a href="#cb101-3" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(glm.pred, Direction<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Direction.2005
+glm.pred Down Up
+    Down   77 97
+    Up     34 44</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Test set success rate</span></span>
+<span id="cb103-2"><a href="#cb103-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(glm.pred <span class="sc">==</span> Direction<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.4801587</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Test set error rate</span></span>
+<span id="cb105-2"><a href="#cb105-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(glm.pred <span class="sc">!=</span> Direction<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5198413</code></pre>
+</div>
+</div>
+<p>The resulting error rate is not very good but not a surprising result for trying to predict future stock market conditions only based on the last few days. Below the analysis is repeated, but only keeping the predictors Lag 1 and Lag 2 which had the smallest P-values (i.e.&nbsp;higher significance)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a>glm.fits <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb107-2"><a href="#cb107-2" aria-hidden="true" tabindex="-1"></a>  Direction <span class="sc">~</span> Lag1 <span class="sc">+</span> Lag2, <span class="at">data =</span> Smarket, <span class="at">family =</span> binomial, <span class="at">subset =</span> train</span>
+<span id="cb107-3"><a href="#cb107-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb107-4"><a href="#cb107-4" aria-hidden="true" tabindex="-1"></a>glm.probs <span class="ot">&lt;-</span> <span class="fu">predict</span>(glm.fits, Smarket<span class="fl">.2005</span>, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb107-5"><a href="#cb107-5" aria-hidden="true" tabindex="-1"></a>glm.pred <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="st">"Down"</span>,<span class="dv">250</span>)</span>
+<span id="cb107-6"><a href="#cb107-6" aria-hidden="true" tabindex="-1"></a>glm.pred[glm.probs <span class="sc">&gt;</span> .<span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="st">"Up"</span></span>
+<span id="cb107-7"><a href="#cb107-7" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(glm.pred, Direction<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Direction.2005
+glm.pred Down  Up
+    Down   35  35
+    Up     76 106</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(glm.pred <span class="sc">==</span> Direction<span class="fl">.2005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5595238</code></pre>
+</div>
+</div>
+<p>Predictions can also be modified to use differenct coefficient values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(glm.fits,</span>
+<span id="cb111-2"><a href="#cb111-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">newdata =</span> </span>
+<span id="cb111-3"><a href="#cb111-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">data.frame</span>(<span class="at">Lag1 =</span> <span class="fu">c</span>(<span class="fl">1.2</span>, <span class="fl">1.5</span>), <span class="at">Lag2 =</span> <span class="fu">c</span>(<span class="fl">1.1</span>, <span class="sc">-</span><span class="fl">0.8</span>)),</span>
+<span id="cb111-4"><a href="#cb111-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">"response"</span></span>
+<span id="cb111-5"><a href="#cb111-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        1         2 
+0.4791462 0.4960939 </code></pre>
+</div>
 </div>
 </section>
 <section id="linear-discriminant-analysis" class="level4">
 <h4 class="anchored" data-anchor-id="linear-discriminant-analysis">Linear Discriminant Analysis</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>lda.fit <span class="ot">&lt;-</span> <span class="fu">lda</span>(</span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>  Direction <span class="sc">~</span> Lag1 <span class="sc">+</span> Lag2, <span class="at">data =</span> Smarket, <span class="at">subset =</span> train</span>
+<span id="cb113-4"><a href="#cb113-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb113-5"><a href="#cb113-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb113-6"><a href="#cb113-6" aria-hidden="true" tabindex="-1"></a>lda.fit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+lda(Direction ~ Lag1 + Lag2, data = Smarket, subset = train)
+
+Prior probabilities of groups:
+    Down       Up 
+0.491984 0.508016 
+
+Group means:
+            Lag1        Lag2
+Down  0.04279022  0.03389409
+Up   -0.03954635 -0.03132544
+
+Coefficients of linear discriminants:
+            LD1
+Lag1 -0.6420190
+Lag2 -0.5135293</code></pre>
+</div>
+</div>
 </section>
 <section id="quadratic-discriminant-analysis" class="level4">
 <h4 class="anchored" data-anchor-id="quadratic-discriminant-analysis">Quadratic Discriminant Analysis</h4>
