@@ -564,6 +564,8 @@ lda.fit <- lda(
 
 lda.fit
 
+plot(lda.fit)
+
 
 ```
 

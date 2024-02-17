@@ -2,4 +2,10 @@
 title: "About"
 ---
 
-Notes for an introductory course on machine learning techniques using R.
+This site contains my notes for the course PA 397C Introduction to Machine Learning / Statistical Analysis and Learning.
+
+It has also served the purpose of expanding my knowledge of using git and Quarto for publishing documents on the web.
+
+Created by: Michael Santulli
+
+*Disclaimer: This site does not contain any information related to textbook exercises, homework, or any other course assignments. It's contents is strictly limited to conceptual notes and the textbook labs using R.*
