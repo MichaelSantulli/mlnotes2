@@ -457,10 +457,29 @@ glm.fits <- glm(
 
 summary(glm.fits)
 
+#View the coefficients
+coef(glm.fits)
+
+#Another way to view the coefficients
+summary(glm.fits)$coef
+
+#Access just the p-values for the coefficients
+summary(glm.fits)$coef[,4]
+
 ```
 
 #### Linear Discriminant Analysis
+```{r}
+
+```
+
 
 #### Quadratic Discriminant Analysis
+```{r}
+
+
+
+```
+
 
 #### Naive Bayes
