@@ -1386,14 +1386,52 @@ nb.class Down  Up
 <h2 class="anchored" data-anchor-id="chapter-5-resampling-methods">Chapter 5: Resampling Methods</h2>
 <section id="notes-3" class="level3">
 <h3 class="anchored" data-anchor-id="notes-3">Notes</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Test 2</span></span>
-<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a>minus <span class="ot">&lt;-</span> <span class="dv">5-2</span></span>
-<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a>minus</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 3</code></pre>
-</div>
-</div>
+<p>Resampling methods: drawing samples from the training data to fit your model multiple times, comparing the goodness of fit across each sample.</p>
+<ul>
+<li><p>Model assessment - the process of evaluating a model’s performance</p></li>
+<li><p>Model selection - the process of the proper level of flexibility for a model</p></li>
+</ul>
+<p><strong>Cross-validation</strong></p>
+<p><em>Validation Set</em> approach</p>
+<ol type="1">
+<li><p>If a test dataset is not available, you can split the training data into two sets:</p>
+<ol type="1">
+<li><p>training set</p></li>
+<li><p>validation set</p></li>
+</ol></li>
+<li><p>Fit the model using the training set, and then test it on the validation set.</p>
+<ol type="1">
+<li>You can also do this multiple times by using different random selections for the training and validation sets</li>
+</ol></li>
+<li><p>Creating a validation set is a useful and simple approach but has two drawbacks:</p>
+<ol type="1">
+<li><p>The validation estimate of the test error can vary substantially depending on how the data is split up</p></li>
+<li><p>Only a subset of observations are used to train the model, since some must be withheld for the test/validation set.</p></li>
+</ol></li>
+</ol>
+<p><em>Leave One Out Cross Validation</em> (LOOCV)</p>
+<ol type="1">
+<li><p>Similar to the validation set approach, but instead of splitting the observations in half, simply split one observation off for validation and use the rest (n-1) for the training set</p></li>
+<li><p>Repeat the procedure <em>n</em> times, calculating the MSE each time</p></li>
+<li><p>LOOCV estimate is the mean of all the MSEs</p></li>
+<li><p>Downside - has to be fit <em>n</em> times which can be time consuming or expensive</p>
+<ol type="1">
+<li>A special rule allows a shortcut for linear or polynomial regression, needing only one fit</li>
+</ol></li>
+</ol>
+<p><em>k-Fold Cross Validation</em></p>
+<ol type="1">
+<li>Divide the observations into <em>k</em> folds of equal size, using one for validation and the rest for training</li>
+<li>Repeat the procedure <em>k</em> times using a different fold as the validation set, recording MSE</li>
+<li>Take the average of all the MSEs</li>
+<li>Typically performed using <em>k</em> = 5 or <em>k</em> = 10</li>
+</ol>
+<p>Cross validation with classification</p>
+<ol type="1">
+<li><p>Same as above, but instead of using MSE to quantify test error, use the number of misclassified observations</p></li>
+<li></li>
+</ol>
+<p><strong>Bootstrap</strong></p>
 
 
 </section>

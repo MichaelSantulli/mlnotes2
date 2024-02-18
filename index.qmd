@@ -584,6 +584,7 @@ lda.class <- lda.pred$class
 table(lda.class, Direction.2005)
 mean(lda.class == Direction.2005)
 ```
+
 In this case, LDA produced similar results to Logistic Regression
 
 ```{r}
@@ -596,7 +597,6 @@ lda.class[1:20]
 #Adjust threshold above .5
 sum(lda.pred$posterior[,1] > .9)
 ```
-
 
 #### Quadratic Discriminant Analysis
 
@@ -615,6 +615,7 @@ mean(qda.class == Direction.2005)
 ```
 
 #### Naive Bayes
+
 ```{r}
 #load library containing the naiveBayes() function
 library(e1071)
@@ -630,7 +631,9 @@ table(nb.class, Direction.2005)
 mean(nb.class == Direction.2005)
 
 ```
+
 The `predict()` function can also generate estimates of the probability that each observation belongs to a particular class.
+
 ```{r}
 nb.preds <- predict(nb.fit, Smarket.2005, type = "raw")
 nb.preds[1:5,]
@@ -640,9 +643,55 @@ nb.preds[1:5,]
 
 ### Notes
 
-```{r}
-#Test 2
-minus <- 5-2
-minus
-```
+Resampling methods: drawing samples from the training data to fit your model multiple times, comparing the goodness of fit across each sample.
 
+-   Model assessment - the process of evaluating a model's performance
+
+-   Model selection - the process of the proper level of flexibility for a model
+
+**Cross-validation**
+
+*Validation Set* approach
+
+1.  If a test dataset is not available, you can split the training data into two sets:
+
+    1.  training set
+
+    2.  validation set
+
+2.  Fit the model using the training set, and then test it on the validation set.
+
+    1.  You can also do this multiple times by using different random selections for the training and validation sets
+
+3.  Creating a validation set is a useful and simple approach but has two drawbacks:
+
+    1.  The validation estimate of the test error can vary substantially depending on how the data is split up
+
+    2.  Only a subset of observations are used to train the model, since some must be withheld for the test/validation set.
+
+*Leave One Out Cross Validation* (LOOCV)
+
+1.  Similar to the validation set approach, but instead of splitting the observations in half, simply split one observation off for validation and use the rest (n-1) for the training set
+
+2.  Repeat the procedure *n* times, calculating the MSE each time
+
+3.  LOOCV estimate is the mean of all the MSEs
+
+4.  Downside - has to be fit *n* times which can be time consuming or expensive
+
+    1.  A special rule allows a shortcut for linear or polynomial regression, needing only one fit
+
+*k-Fold Cross Validation*
+
+1.  Divide the observations into *k* folds of equal size, using one for validation and the rest for training
+2.  Repeat the procedure *k* times using a different fold as the validation set, recording MSE
+3.  Take the average of all the MSEs
+4.  Typically performed using *k* = 5 or *k* = 10
+
+Cross validation with classification
+
+1.  Same as above, but instead of using MSE to quantify test error, use the number of misclassified observations
+
+2.  
+
+**Bootstrap**
