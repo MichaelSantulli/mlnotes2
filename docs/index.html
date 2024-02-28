@@ -175,6 +175,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chapter-5-resampling-methods" id="toc-chapter-5-resampling-methods" class="nav-link" data-scroll-target="#chapter-5-resampling-methods">Chapter 5: Resampling Methods</a>
   <ul>
   <li><a href="#notes-3" id="toc-notes-3" class="nav-link" data-scroll-target="#notes-3">Notes</a></li>
+  <li><a href="#lab-cross-validation-and-the-bootstrap" id="toc-lab-cross-validation-and-the-bootstrap" class="nav-link" data-scroll-target="#lab-cross-validation-and-the-bootstrap">Lab: Cross Validation and the Bootstrap</a>
+  <ul>
+  <li><a href="#validation-set-approach" id="toc-validation-set-approach" class="nav-link" data-scroll-target="#validation-set-approach">Validation Set Approach</a></li>
+  <li><a href="#leave-one-out-cross-validation" id="toc-leave-one-out-cross-validation" class="nav-link" data-scroll-target="#leave-one-out-cross-validation">Leave One Out Cross Validation</a></li>
+  <li><a href="#k-fold-cross-validation" id="toc-k-fold-cross-validation" class="nav-link" data-scroll-target="#k-fold-cross-validation">k-fold Cross Validation</a></li>
+  <li><a href="#bootstrap" id="toc-bootstrap" class="nav-link" data-scroll-target="#bootstrap">Bootstrap</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -950,7 +957,7 @@ Medium    0      1</code></pre>
 <li>Bayes Theorem - used to flip conditional probabilities</li>
 <li>Assumption - the distributions of X are normal or Gaussian</li>
 <li>Assumption - both the outcome distributions have the same variance (not an assumption of QDA)</li>
-<li>Data statistics needed to plug into the equation with two classes and one predictor: <span class="math inline">\(\sigma, \pi_1, \pi_2, \mu_1, \mu_2\)</span> where <span class="math inline">\(\sigma\)</span> is the shared variance, <span class="math inline">\(\pi_1 and \pi_2\)</span> are the prior probabilities of k = 1, 2, and <span class="math inline">\(\mu_1 and \mu_2\)</span> are the means</li>
+<li>Data statistics needed to plug into the equation with two classes and one predictor: <span class="math inline">\(\sigma, \pi_1, \pi_2, \mu_1, \mu_2\)</span> where <span class="math inline">\(\sigma\)</span> is the shared variance, <span class="math inline">\(\pi_1\)</span> and <span class="math inline">\(\pi_2\)</span> are the prior probabilities of k = 1, 2, and <span class="math inline">\(\mu_1\)</span> and <span class="math inline">\(\mu_2\)</span> are the means</li>
 </ol></li>
 <li>Quadratic Discriminant Analysis (QDA)</li>
 <li>Naive Bayes</li>
@@ -1432,9 +1439,48 @@ nb.class Down  Up
 <li></li>
 </ol>
 <p><strong>Bootstrap</strong></p>
-<p>asdlfkdgfajksflk</p>
+</section>
+<section id="lab-cross-validation-and-the-bootstrap" class="level3">
+<h3 class="anchored" data-anchor-id="lab-cross-validation-and-the-bootstrap">Lab: Cross Validation and the Bootstrap</h3>
+<section id="validation-set-approach" class="level4">
+<h4 class="anchored" data-anchor-id="validation-set-approach">Validation Set Approach</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ISLR2)</span>
+<span id="cb146-2"><a href="#cb146-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb146-3"><a href="#cb146-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb146-4"><a href="#cb146-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Split data in two for training and testing</span></span>
+<span id="cb146-5"><a href="#cb146-5" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">392</span>, <span class="dv">196</span>)</span>
+<span id="cb146-6"><a href="#cb146-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb146-7"><a href="#cb146-7" aria-hidden="true" tabindex="-1"></a>lm.fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> horsepower, <span class="at">data =</span> Auto, <span class="at">subset =</span> train)</span>
+<span id="cb146-8"><a href="#cb146-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb146-9"><a href="#cb146-9" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(Auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from package:lubridate:
+
+    origin</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from package:ggplot2:
+
+    mpg</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((mpg <span class="sc">-</span> <span class="fu">predict</span>(lm.fit, Auto))[<span class="sc">-</span>train]<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 23.26601</code></pre>
+</div>
+</div>
+</section>
+<section id="leave-one-out-cross-validation" class="level4">
+<h4 class="anchored" data-anchor-id="leave-one-out-cross-validation">Leave One Out Cross Validation</h4>
+</section>
+<section id="k-fold-cross-validation" class="level4">
+<h4 class="anchored" data-anchor-id="k-fold-cross-validation">k-fold Cross Validation</h4>
+</section>
+<section id="bootstrap" class="level4">
+<h4 class="anchored" data-anchor-id="bootstrap">Bootstrap</h4>
 
 
+</section>
 </section>
 </section>
 

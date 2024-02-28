@@ -426,7 +426,7 @@ Classification techniques are used when the dependent variable Y is qualitative 
     1.  Bayes Theorem - used to flip conditional probabilities
     2.  Assumption - the distributions of X are normal or Gaussian
     3.  Assumption - both the outcome distributions have the same variance (not an assumption of QDA)
-    4.  Data statistics needed to plug into the equation with two classes and one predictor: $\sigma, \pi_1, \pi_2, \mu_1, \mu_2$ where $\sigma$ is the shared variance, $\pi_1 and \pi_2$ are the prior probabilities of k = 1, 2, and $\mu_1 and \mu_2$ are the means
+    4.  Data statistics needed to plug into the equation with two classes and one predictor: $\sigma, \pi_1, \pi_2, \mu_1, \mu_2$ where $\sigma$ is the shared variance, $\pi_1$ and $\pi_2$ are the prior probabilities of k = 1, 2, and $\mu_1$ and $\mu_2$ are the means
 4.  Quadratic Discriminant Analysis (QDA)
 5.  Naive Bayes
 
@@ -677,6 +677,8 @@ Resampling methods: drawing samples from the training data to fit your model mul
 
 3.  LOOCV estimate is the mean of all the MSEs
 
+    1.  Central limit theorem does not apply since there are correlations between your samples
+
 4.  Downside - has to be fit *n* times which can be time consuming or expensive
 
     1.  A special rule allows a shortcut for linear or polynomial regression, needing only one fit
@@ -696,4 +698,43 @@ Cross validation with classification
 
 **Bootstrap**
 
-asdlfkdgfajksflk
+### Lab: Cross Validation and the Bootstrap
+
+#### Validation Set Approach
+
+```{r}
+library(ISLR2)
+set.seed(1)
+
+#Split data in two for training and testing
+train <- sample(392, 196)
+
+lm.fit <- lm(mpg ~ horsepower, data = Auto, subset = train)
+
+attach(Auto)
+mean((mpg - predict(lm.fit, Auto))[-train]^2)
+
+
+```
+
+#### Leave One Out Cross Validation
+
+```{r}
+
+```
+
+#### k-fold Cross Validation
+
+```{r}
+
+```
+
+#### Bootstrap
+
+```{r}
+
+```
+
+### Ch 6: Regularlization
+
+#### Notes
