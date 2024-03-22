@@ -183,6 +183,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#bootstrap" id="toc-bootstrap" class="nav-link" data-scroll-target="#bootstrap">Bootstrap</a></li>
   </ul></li>
   </ul></li>
+  <li><a href="#ch-6-regularization" id="toc-ch-6-regularization" class="nav-link" data-scroll-target="#ch-6-regularization">Ch 6: Regularization</a>
+  <ul>
+  <li><a href="#notes-4" id="toc-notes-4" class="nav-link" data-scroll-target="#notes-4">Notes</a></li>
+  </ul></li>
+  <li><a href="#ch-8-tree-based-methods" id="toc-ch-8-tree-based-methods" class="nav-link" data-scroll-target="#ch-8-tree-based-methods">Ch 8: Tree Based Methods</a>
+  <ul>
+  <li><a href="#notes-5" id="toc-notes-5" class="nav-link" data-scroll-target="#notes-5">Notes</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -1420,7 +1428,10 @@ nb.class Down  Up
 <ol type="1">
 <li><p>Similar to the validation set approach, but instead of splitting the observations in half, simply split one observation off for validation and use the rest (n-1) for the training set</p></li>
 <li><p>Repeat the procedure <em>n</em> times, calculating the MSE each time</p></li>
-<li><p>LOOCV estimate is the mean of all the MSEs</p></li>
+<li><p>LOOCV estimate is the mean of all the MSEs</p>
+<ol type="1">
+<li>Central limit theorem does not apply since there are correlations between your samples</li>
+</ol></li>
 <li><p>Downside - has to be fit <em>n</em> times which can be time consuming or expensive</p>
 <ol type="1">
 <li>A special rule allows a shortcut for linear or polynomial regression, needing only one fit</li>
@@ -1453,7 +1464,8 @@ nb.class Down  Up
 <span id="cb146-6"><a href="#cb146-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb146-7"><a href="#cb146-7" aria-hidden="true" tabindex="-1"></a>lm.fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> horsepower, <span class="at">data =</span> Auto, <span class="at">subset =</span> train)</span>
 <span id="cb146-8"><a href="#cb146-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb146-9"><a href="#cb146-9" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(Auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb146-9"><a href="#cb146-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Calculate the test MSE</span></span>
+<span id="cb146-10"><a href="#cb146-10" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(Auto)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>The following object is masked from package:lubridate:
 
@@ -1468,19 +1480,165 @@ nb.class Down  Up
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 23.26601</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Fit a quadratic and cubic model with the poly() function</span></span>
+<span id="cb151-2"><a href="#cb151-2" aria-hidden="true" tabindex="-1"></a>lm.fit2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> <span class="fu">poly</span>(horsepower, <span class="dv">2</span>), <span class="at">data =</span> Auto, <span class="at">subset =</span> train)</span>
+<span id="cb151-3"><a href="#cb151-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((mpg<span class="sc">-</span> <span class="fu">predict</span>(lm.fit2, Auto))[<span class="sc">-</span>train]<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 18.71646</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a href="#cb153-1" aria-hidden="true" tabindex="-1"></a>lm.fit3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(mpg <span class="sc">~</span> <span class="fu">poly</span>(horsepower, <span class="dv">3</span>), <span class="at">data =</span> Auto, <span class="at">subset =</span> train)</span>
+<span id="cb153-2"><a href="#cb153-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>((mpg<span class="sc">-</span> <span class="fu">predict</span>(lm.fit3, Auto))[<span class="sc">-</span>train]<span class="sc">^</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 18.79401</code></pre>
+</div>
+</div>
+<p>Analysis of the MSe for each model indicates that a quadratic function is an improvement in the linear model, but a cubic model does not offer any significant additional improvement.</p>
 </section>
 <section id="leave-one-out-cross-validation" class="level4">
 <h4 class="anchored" data-anchor-id="leave-one-out-cross-validation">Leave One Out Cross Validation</h4>
+<p>You can perform LOOCV using <code>cv.glm()</code> For linear regression, instead of using <code>lm()</code>, use the <code>glm()</code> function but leave the <code>family</code> argument blank.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a><span class="co">#boot package contains cv.glm()</span></span>
+<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'boot'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:car':
+
+    logit</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a>glm.fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(mpg <span class="sc">~</span> horsepower, <span class="at">data =</span> Auto)</span>
+<span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a>cv.err <span class="ot">&lt;-</span> <span class="fu">cv.glm</span>(Auto, glm.fit)</span>
+<span id="cb158-3"><a href="#cb158-3" aria-hidden="true" tabindex="-1"></a>cv.err<span class="sc">$</span>delta</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 24.23151 24.23114</code></pre>
+</div>
+</div>
+<p>To repeat the process of cross validation over multiple polynomial fits, use a for loop:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a>cv.error <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">10</span>)</span>
+<span id="cb160-2"><a href="#cb160-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb160-3"><a href="#cb160-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) {</span>
+<span id="cb160-4"><a href="#cb160-4" aria-hidden="true" tabindex="-1"></a>  glm.fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(mpg <span class="sc">~</span> <span class="fu">poly</span>(horsepower, i), <span class="at">data =</span> Auto)</span>
+<span id="cb160-5"><a href="#cb160-5" aria-hidden="true" tabindex="-1"></a>  cv.error[i] <span class="ot">&lt;-</span> <span class="fu">cv.glm</span>(Auto, glm.fit)<span class="sc">$</span>delta[<span class="dv">1</span>]</span>
+<span id="cb160-6"><a href="#cb160-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb160-7"><a href="#cb160-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb160-8"><a href="#cb160-8" aria-hidden="true" tabindex="-1"></a><span class="co">#Display the test MSE for each all polynomial models</span></span>
+<span id="cb160-9"><a href="#cb160-9" aria-hidden="true" tabindex="-1"></a>cv.error</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] 24.23151 19.24821 19.33498 19.42443 19.03321 18.97864 18.83305 18.96115
+ [9] 19.06863 19.49093</code></pre>
+</div>
+</div>
+<p>There is a decrease in test MSE from linear to quadratic, but not much improvement after that.</p>
 </section>
 <section id="k-fold-cross-validation" class="level4">
 <h4 class="anchored" data-anchor-id="k-fold-cross-validation">k-fold Cross Validation</h4>
 </section>
 <section id="bootstrap" class="level4">
 <h4 class="anchored" data-anchor-id="bootstrap">Bootstrap</h4>
-
-
 </section>
+</section>
+</section>
+<section id="ch-6-regularization" class="level2">
+<h2 class="anchored" data-anchor-id="ch-6-regularization">Ch 6: Regularization</h2>
+<section id="notes-4" class="level3">
+<h3 class="anchored" data-anchor-id="notes-4">Notes</h3>
+<p>Example: You have a linear model with p = 100 and want to find a subset model with the best test MSE. Which of the methods below is best to use?</p>
+<p><strong>Subset Selection</strong></p>
+<ol type="1">
+<li><p>Best Subset Selection</p>
+<ol type="1">
+<li><p>Tests all potential models with p = 1, p = 2, … p =100. Total number of models to test is <span class="math inline">\(2^p\)</span></p></li>
+<li><p>perform <em>p</em> cross validations to find the best test MSE</p></li>
+<li><p>While this model is theoretically best, it is almost always unfeasible to calculate so many models</p></li>
+</ol></li>
+<li><p>Forward Stepwise Selection</p>
+<ol type="1">
+<li><p>Step 1: test out all possible p = 1 models (100), find the one that has the lowest test MSE or highest <span class="math inline">\(R^2\)</span></p></li>
+<li><p>Step 2: test out all possible p = 2 models with <span class="math inline">\(p_1\)</span> being the predictor identified in step 1.</p></li>
+<li><p>Steps 3 through <em>p</em>:In each step, use the identified predictors from the previous step and go through models with one additional predictor for remaining <em>p</em>s, adding one each time that has the lowest test MSE.</p></li>
+<li><p>Total number of models to test is <span class="math inline">\((1+ p(p+1))/2\)</span>, far less than <span class="math inline">\(2^p\)</span></p></li>
+<li></li>
+</ol></li>
+<li><p>Backward Stepwise Selection</p>
+<ol type="1">
+<li><p>Start with full model of <em>p</em> predictors</p></li>
+<li><p>Take away one variable at a time</p></li>
+<li><p>Requires that <em>n</em> &gt; <em>p</em></p></li>
+</ol></li>
+</ol>
+<p><strong>Shrinkage Methods</strong></p>
+<p>Reminder- least squares estimation uses RSS</p>
+<ol type="1">
+<li>Ridge Regression</li>
+<li>The Lasso</li>
+</ol>
+</section>
+</section>
+<section id="ch-8-tree-based-methods" class="level2">
+<h2 class="anchored" data-anchor-id="ch-8-tree-based-methods">Ch 8: Tree Based Methods</h2>
+<section id="notes-5" class="level3">
+<h3 class="anchored" data-anchor-id="notes-5">Notes</h3>
+<p>Decision trees can be applied to both regression and classification problems.</p>
+<ul>
+<li><p>Internal nodes - where splits happen in the tree</p></li>
+<li><p>Terminal nodes or “leaves” - the end points of the tree</p></li>
+</ul>
+<p>Brute force approach</p>
+<ul>
+<li><p>Split predictor space into all possible boxes, choose the ones that minimize RSS</p></li>
+<li><p>This is not possible in practice</p></li>
+</ul>
+<p>Therefore must use the “greedy” approach using one predictor at a time</p>
+<ol type="1">
+<li><p>First compute RSS for all possible splits for all predictors</p>
+<ol type="1">
+<li>Choose one predictor and one split point combo that has minimum RSS</li>
+</ol></li>
+<li><p>Next step - create one more split of either of the two existing spaces.</p></li>
+</ol>
+<p>When to stop splitting into more boxes?</p>
+<ul>
+<li><p>Define a certain number of points in each box</p></li>
+<li><p>If further splits is not improving RSS significantly</p></li>
+</ul>
+<p>Pruning Trees (Cost Complexity Pruning)</p>
+<ul>
+<li>The tuning parameter <span class="math inline">\(\alpha\)</span> controls a trade off between the subtree’s complexity and its fit to the training data.</li>
+</ul>
+<p><strong>Bagging (Bootstrap Aggregation)</strong></p>
+<ul>
+<li><p>Based on the idea that averaging a set of observations reduces variance</p></li>
+<li><p>Take many bootstrapped training sets and build models for all of them, average the resulting predictions</p></li>
+<li><p>For classification, take the mode (i.e.&nbsp;the most frequently predicted class)</p></li>
+<li><p>Problem: trees are correlated in the bagging process, certain predictors may dominate every tree</p></li>
+<li><p>How many bootstrapped samples should there be? often <em>b</em> = 100</p></li>
+</ul>
+<p><strong>Random Forests</strong></p>
+<ul>
+<li><p>Decorellates the trees</p></li>
+<li><p>Randomly selects a subset <em>m</em> of all predictors to consider for each split</p></li>
+<li><p>What is the ideal value of <em>m?</em> Some common values are <span class="math inline">\(p/2\)</span> or <span class="math inline">\(\sqrt p\)</span></p></li>
+<li><p>Variable importance - a way to see which predictors are most important, similar to coefficient values in linear regression</p></li>
+</ul>
+<p><strong>Boosting</strong></p>
+<ul>
+<li><p>A sequential process of small steps</p></li>
+<li><p>Build a small tree, see what you learn and what you didn’t learn (i.e.&nbsp;the residual)</p></li>
+<li><p>Build each next tree focused on the remaining residual</p></li>
+<li><p>Create summation of all trees for final prediction</p></li>
+<li><p>Three tuning parameters</p>
+<ul>
+<li><p><span class="math inline">\(B\)</span>, the number of trees to build</p></li>
+<li><p><span class="math inline">\(\lambda\)</span>, the shrinkage parameter</p></li>
+<li><p><span class="math inline">\(d\)</span> , the number of splits in each tree</p></li>
+</ul></li>
+</ul>
+
+
 </section>
 </section>
 

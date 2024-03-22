@@ -711,17 +711,49 @@ train <- sample(392, 196)
 
 lm.fit <- lm(mpg ~ horsepower, data = Auto, subset = train)
 
+#Calculate the test MSE
 attach(Auto)
 mean((mpg - predict(lm.fit, Auto))[-train]^2)
 
+#Fit a quadratic and cubic model with the poly() function
+lm.fit2 <- lm(mpg ~ poly(horsepower, 2), data = Auto, subset = train)
+mean((mpg- predict(lm.fit2, Auto))[-train]^2)
+
+lm.fit3 <- lm(mpg ~ poly(horsepower, 3), data = Auto, subset = train)
+mean((mpg- predict(lm.fit3, Auto))[-train]^2)
 
 ```
+
+Analysis of the MSe for each model indicates that a quadratic function is an improvement in the linear model, but a cubic model does not offer any significant additional improvement.
 
 #### Leave One Out Cross Validation
 
-```{r}
+You can perform LOOCV using `cv.glm()`
+For linear regression, instead of using `lm()`, use the `glm()` function but leave the `family` argument blank.
 
+```{r}
+#boot package contains cv.glm()
+library(boot)
+
+glm.fit <- glm(mpg ~ horsepower, data = Auto)
+cv.err <- cv.glm(Auto, glm.fit)
+cv.err$delta
 ```
+
+To repeat the process of cross validation over multiple polynomial fits, use a for loop:
+
+```{r}
+cv.error <- rep(0,10)
+
+for (i in 1:10) {
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data = Auto)
+  cv.error[i] <- cv.glm(Auto, glm.fit)$delta[1]
+}
+
+#Display the test MSE for each all polynomial models
+cv.error
+```
+There is a decrease in test MSE from linear to quadratic, but not much improvement after that.
 
 #### k-fold Cross Validation
 
@@ -735,6 +767,119 @@ mean((mpg - predict(lm.fit, Auto))[-train]^2)
 
 ```
 
-### Ch 6: Regularlization
+## Ch 6: Regularization
 
-#### Notes
+### Notes
+
+Example: You have a linear model with p = 100 and want to find a subset model with the best test MSE. Which of the methods below is best to use?
+
+**Subset Selection**
+
+1.  Best Subset Selection
+
+    1.  Tests all potential models with p = 1, p = 2, ... p =100. Total number of models to test is $2^p$
+
+    2.  perform *p* cross validations to find the best test MSE
+
+    3.  While this model is theoretically best, it is almost always unfeasible to calculate so many models
+
+2.  Forward Stepwise Selection
+
+    1.  Step 1: test out all possible p = 1 models (100), find the one that has the lowest test MSE or highest $R^2$
+
+    2.  Step 2: test out all possible p = 2 models with $p_1$ being the predictor identified in step 1.
+
+    3.  Steps 3 through *p*:In each step, use the identified predictors from the previous step and go through models with one additional predictor for remaining *p*s, adding one each time that has the lowest test MSE.
+
+    4.  Total number of models to test is $(1+ p(p+1))/2$, far less than $2^p$
+
+    5.  
+
+3.  Backward Stepwise Selection
+
+    1.  Start with full model of *p* predictors
+
+    2.  Take away one variable at a time
+
+    3.  Requires that *n* \> *p*
+
+**Shrinkage Methods**
+
+Reminder- least squares estimation uses RSS
+
+1.  Ridge Regression
+2.  The Lasso
+
+## Ch 8: Tree Based Methods
+
+### Notes
+
+Decision trees can be applied to both regression and classification problems.
+
+-   Internal nodes - where splits happen in the tree
+
+-   Terminal nodes or "leaves" - the end points of the tree
+
+Brute force approach
+
+-   Split predictor space into all possible boxes, choose the ones that minimize RSS
+
+-   This is not possible in practice
+
+Therefore must use the "greedy" approach using one predictor at a time
+
+1.  First compute RSS for all possible splits for all predictors
+
+    1.  Choose one predictor and one split point combo that has minimum RSS
+
+2.  Next step - create one more split of either of the two existing spaces.
+
+When to stop splitting into more boxes?
+
+-   Define a certain number of points in each box
+
+-   If further splits is not improving RSS significantly
+
+Pruning Trees (Cost Complexity Pruning)
+
+-   The tuning parameter $\alpha$ controls a trade off between the subtree's complexity and its fit to the training data.
+
+**Bagging (Bootstrap Aggregation)**
+
+-   Based on the idea that averaging a set of observations reduces variance
+
+-   Take many bootstrapped training sets and build models for all of them, average the resulting predictions
+
+-   For classification, take the mode (i.e. the most frequently predicted class)
+
+-   Problem: trees are correlated in the bagging process, certain predictors may dominate every tree
+
+-   How many bootstrapped samples should there be? often *b* = 100
+
+**Random Forests**
+
+-   Decorellates the trees
+
+-   Randomly selects a subset *m* of all predictors to consider for each split
+
+-   What is the ideal value of *m?* Some common values are $p/2$ or $\sqrt p$
+
+-   Variable importance - a way to see which predictors are most important, similar to coefficient values in linear regression
+
+**Boosting**
+
+-   A sequential process of small steps
+
+-   Build a small tree, see what you learn and what you didn't learn (i.e. the residual)
+
+-   Build each next tree focused on the remaining residual
+
+-   Create summation of all trees for final prediction
+
+-   Three tuning parameters
+
+    -   $B$, the number of trees to build
+
+    -   $\lambda$, the shrinkage parameter
+
+    -   $d$ , the number of splits in each tree
