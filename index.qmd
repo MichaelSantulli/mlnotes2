@@ -728,8 +728,7 @@ Analysis of the MSe for each model indicates that a quadratic function is an imp
 
 #### Leave One Out Cross Validation
 
-You can perform LOOCV using `cv.glm()`
-For linear regression, instead of using `lm()`, use the `glm()` function but leave the `family` argument blank.
+You can perform LOOCV using `cv.glm()` For linear regression, instead of using `lm()`, use the `glm()` function but leave the `family` argument blank.
 
 ```{r}
 #boot package contains cv.glm()
@@ -739,6 +738,8 @@ glm.fit <- glm(mpg ~ horsepower, data = Auto)
 cv.err <- cv.glm(Auto, glm.fit)
 cv.err$delta
 ```
+
+`$delta` contains the CV results The first numbers is the standard CV estimate; the second is a bias-corrected version. In this case they are nearly the same.
 
 To repeat the process of cross validation over multiple polynomial fits, use a for loop:
 
@@ -753,18 +754,114 @@ for (i in 1:10) {
 #Display the test MSE for each all polynomial models
 cv.error
 ```
+
 There is a decrease in test MSE from linear to quadratic, but not much improvement after that.
 
 #### k-fold Cross Validation
 
+To perform k-fold cross validation, you can still use the `cv.glm()` function, define a value for the argument `k`.
+
 ```{r}
+set.seed(17)
+cv.error.10 <- rep(0,10)
+
+for(i in 1:10) {
+  glm.fit <- glm(mpg ~ poly(horsepower, i), data = Auto)
+  cv.error.10[i] <- cv.glm(Auto, glm.fit, K = 10)$delta[1]
+}
+
+cv.error.10
+
 
 ```
 
 #### Bootstrap
 
-```{r}
+**Estimating the accuracy of a statistic of interest**
 
+Two steps: 1. Create a function to compute the statistic of interest ($\alpha$) 2. Use the `boot()` function to repeatedly generate bootstrapped data samples)
+
+```{r}
+alpha.fn <- function(data, index){
+  X <- data$X[index]
+  Y <- data$Y[index]
+  (var(Y) - cov(X,Y)) / (var(X) + var(Y) - 2*cov(X,Y))
+}
+
+```
+
+The function returns an estimate for ($\alpha$) based on the specified index of the dataset.
+
+```{r}
+alpha.fn(Portfolio, 1:100)
+```
+
+Use `sample()` to randomly select 100 observations with replacement (i.e. creating a bootstrap dataset and then recalculating the estimate for ($\alpha$))
+
+```{r}
+set.seed(7)
+alpha.fn(Portfolio, sample(100, 100, replace = TRUE))
+```
+
+To perform a bootstrap analysis (peformining the above step multiple times), we can use the `boot()` function:
+
+```{r}
+boot(
+  data = Portfolio,
+  statistic = alpha.fn,
+  R = 1000
+)
+```
+
+**Estimating the accuracy of a linear regression model** The bootstrap approach can be used to assess the variability of the coefficient estimates and predictions from a statistical learning method.
+
+First create a function to return the intercept and coefficient estimates for a linear regression model:
+
+```{r}
+#Define function (no brackets needed since it's only one line)
+boot.fn <- function(data, index)
+  coef(lm(mpg ~ horsepower, data = data, subset = index))
+
+#
+boot.fn(Auto, 1:392)
+```
+
+To create a bootstrap version, use the `sample()` function:
+
+```{r}
+set.seed(1)
+boot.fn(Auto, sample(392, 392, TRUE))
+```
+
+Then, use the `boot()` function to compute the standard errors of 1000 bootstrap estimates of the intercept and slope.
+
+```{r}
+boot(Auto, boot.fn, 1000)
+```
+
+Compare to the estimates from the standard formula
+
+```{r}
+summary(lm(mpg ~ horsepower, data = Auto))$coef
+```
+
+The bootstrap method produced different Standard Errors, but they are often more accurate than the ones from summary(). Below is another comparison but with a quadratic fit.
+
+```{r}
+#Bootstrap method
+boot.fn <- function(data, index)
+  coef(
+    lm(mpg ~ horsepower + I(horsepower^2),
+       data = data, subset = index)
+  )
+
+set.seed(1)
+boot(Auto, boot.fn, 1000)
+
+#standard calculation
+summary(
+  lm(mpg ~ horsepower + I(horsepower^2), Auto)
+)$coef
 ```
 
 ## Ch 6: Regularization
@@ -809,6 +906,110 @@ Reminder- least squares estimation uses RSS
 
 1.  Ridge Regression
 2.  The Lasso
+
+### Lab: Linear Models and Regularization Methods
+
+#### Best Subset Selection
+
+Use Best Subset Selection on `Hitters` data
+
+```{r}
+#Preview the data
+names(Hitters)
+dim(Hitters)
+str(Hitters)
+
+#Find the number of missing values for Salary
+sum(is.na(Hitters$Salary))
+
+
+
+
+```
+
+The `na.omit()` function removes all of the rows that have missing values in any variable.
+
+```{r}
+Hitters <- na.omit(Hitters)
+
+dim(Hitters)
+
+sum(is.na(Hitters$Salary))
+```
+
+The regsubsets() function (part of the leaps library) performs best sub- set selection by identifying the best model that contains a given number of predictors, where best is quantified using RSS. The syntax is the same as for lm(). The summary() command outputs the best set of variables for each model size.
+
+```{r}
+library(leaps)
+
+regfit.full <- regsubsets(Salary~., Hitters)
+
+summary(regfit.full)
+```
+Returns up to 8-variable model by default, use nvmax argument for more:
+
+```{r}
+regfit.full <- regsubsets(Salary~., Hitters, nvmax = 19)
+
+reg.summary <- summary(regfit.full)
+```
+
+The summary() function also returns R2, RSS, adjusted R2, Cp, and BIC. We can examine these to try to select the best overall model.
+
+```{r}
+names(reg.summary)
+
+#view the R^2 statistic
+reg.summary$rsq
+```
+Plotting RSS, adjusted R2, Cp, and BIC for all of the models at once will help us decide which model to select. Note the type = "l" option tells R to connect the plotted points with lines.
+
+```{r}
+
+par(mfrow = c(2,2))
+
+plot(reg.summary$rss, xlab = "Number of Variables", ylab = "RSS", type = "l")
+
+plot(reg.summary$adjr2, xlab = "Number of Variables", ylab = "Adjusted RSq", type = "l")
+
+which.max(reg.summary$adjr2)
+
+points(11, reg.summary$adjr2[11], col = "red", cex = 2, pch = 20)
+```
+In a similar fashion we can plot the Cp and BIC statistics, and indicate the models with the smallest statistic using which.min().
+```{r}
+plot(reg.summary$cp, xlab = "Number of Variables", ylab = "Cp", type = "l")
+which.min(reg.summary$cp)
+ points(10, reg.summary$cp[10], col = "red", cex = 2,
+pch = 20)
+ 
+which.min(reg.summary$bic)
+plot(reg.summary$bic, xlab = "Number of Variables",
+ylab = "BIC", type = "l")
+points(6, reg.summary$bic[6], col = "red", cex = 2,
+pch = 20)
+
+
+```
+
+The regsubsets() function has a built-in plot() command which can be used to display the selected variables for the best model with a given number of predictors, ranked according to the BIC, Cp, adjusted R2, or AIC. To find out more about this function, type ?plot.regsubsets.
+```{r}
+plot(regfit.full, scale = "r2")
+plot(regfit.full, scale = "adjr2")
+plot(regfit.full, scale = "Cp")
+plot(regfit.full, scale = "bic")
+```
+The top row shows the variables of the optimal model for each statistic. To view the coefficients, determine the number of variables in the optimal model and use the coef() function:
+```{r}
+coef(regfit.full, 6)
+```
+
+
+#### Forward & Backward Stepwise Selection
+
+#### Ridge Regression
+
+#### The Lasso
 
 ## Ch 8: Tree Based Methods
 
@@ -883,3 +1084,15 @@ Pruning Trees (Cost Complexity Pruning)
     -   $\lambda$, the shrinkage parameter
 
     -   $d$ , the number of splits in each tree
+
+### Lab
+
+## Ch 9: Support Vector Machines
+
+### Notes
+
+1.  Maximal Margin Classifier
+
+2.  Support Vector Classifier
+
+3.  Support Vector Machines
