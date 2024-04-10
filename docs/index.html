@@ -227,6 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
+<p>The lab content on this site is from the textbook <a href="https://www.statlearning.com"><em>An Introduction to Statistical Learning with Applications in R, second edition</em></a></p>
 <section id="r-setup" class="level2">
 <h2 class="anchored" data-anchor-id="r-setup">R Setup</h2>
 <div class="cell">
@@ -2023,8 +2024,17 @@ Selection Algorithm: exhaustive
 <section id="notes-6" class="level3">
 <h3 class="anchored" data-anchor-id="notes-6">Notes</h3>
 <ol type="1">
-<li><p>Maximal Margin Classifier</p></li>
-<li><p>Support Vector Classifier</p></li>
+<li><p>Maximal Margin Classifier</p>
+<ul>
+<li><p>Separate observations based on a hyperplane (a p-1 dimensional plane, in the case of only 2 dimensions it’s a line)</p></li>
+<li><p>Only can handle a small number of datasets that have a clean division of classes (the non-separable case)</p></li>
+<li><p>There can be multiple lines or hyperplanes that cleanly separate the classes. How do you choose one? With the maximal margin</p></li>
+<li><p>The MMC is the separating hyperplane that is farthest from the training observations</p></li>
+</ul></li>
+<li><p>Support Vector Classifier</p>
+<ul>
+<li>Use a “soft boundary” to be applied to more datasets - it’s ok if some data points are misclassified</li>
+</ul></li>
 <li><p>Support Vector Machines</p></li>
 </ol>
 

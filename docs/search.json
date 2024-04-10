@@ -4,21 +4,21 @@
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "This site contains my notes for the course PA 397C Introduction to Machine Learning / Statistical Analysis and Learning.\nIt has also served the purpose of expanding my knowledge of using git and Quarto for publishing documents on the web.\nCreated by: Michael Santulli\nDisclaimer: This site does not contain any information related to textbook exercises, homework, or any other course assignments. It’s contents is strictly limited to conceptual notes and the textbook labs using R."
+    "text": "This site contains my notes and practice lab exercises for the course PA 397C Introduction to Machine Learning / Statistical Analysis and Learning.\nThe lab content on this site is from the textbook An Introduction to Statistical Learning with Applications in R, second edition\nCreated by: Michael Santulli\nDisclaimer: This site does not contain any information related to textbook exercises, homework, or any other course assignments. It’s contents is strictly limited to conceptual notes and the textbook labs using R."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Intro to Machine Learning Notes",
     "section": "",
-    "text": "#Load packages for chapter labs\nlibrary(\"ISLR2\") #Introduction to Statistical Learning datasets'\nlibrary(\"tidyverse\")"
+    "text": "The lab content on this site is from the textbook An Introduction to Statistical Learning with Applications in R, second edition"
   },
   {
     "objectID": "index.html#r-setup",
     "href": "index.html#r-setup",
     "title": "Intro to Machine Learning Notes",
-    "section": "",
-    "text": "#Load packages for chapter labs\nlibrary(\"ISLR2\") #Introduction to Statistical Learning datasets'\nlibrary(\"tidyverse\")"
+    "section": "R Setup",
+    "text": "R Setup\n\n#Load packages for chapter labs\nlibrary(\"ISLR2\") #Introduction to Statistical Learning datasets'\nlibrary(\"tidyverse\")"
   },
   {
     "objectID": "index.html#week-1-notes",
@@ -74,6 +74,6 @@
     "href": "index.html#ch-9-support-vector-machines",
     "title": "Intro to Machine Learning Notes",
     "section": "Ch 9: Support Vector Machines",
-    "text": "Ch 9: Support Vector Machines\n\nNotes\n\nMaximal Margin Classifier\nSupport Vector Classifier\nSupport Vector Machines"
+    "text": "Ch 9: Support Vector Machines\n\nNotes\n\nMaximal Margin Classifier\n\nSeparate observations based on a hyperplane (a p-1 dimensional plane, in the case of only 2 dimensions it’s a line)\nOnly can handle a small number of datasets that have a clean division of classes (the non-separable case)\nThere can be multiple lines or hyperplanes that cleanly separate the classes. How do you choose one? With the maximal margin\nThe MMC is the separating hyperplane that is farthest from the training observations\n\nSupport Vector Classifier\n\nUse a “soft boundary” to be applied to more datasets - it’s ok if some data points are misclassified\n\nSupport Vector Machines"
   }
 ]
