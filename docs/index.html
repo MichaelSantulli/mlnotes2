@@ -210,7 +210,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#ch-9-support-vector-machines" id="toc-ch-9-support-vector-machines" class="nav-link" data-scroll-target="#ch-9-support-vector-machines">Ch 9: Support Vector Machines</a>
   <ul>
   <li><a href="#notes-6" id="toc-notes-6" class="nav-link" data-scroll-target="#notes-6">Notes</a></li>
-  <li><a href="#lab-1" id="toc-lab-1" class="nav-link" data-scroll-target="#lab-1">Lab</a></li>
+  <li><a href="#lab-1" id="toc-lab-1" class="nav-link" data-scroll-target="#lab-1">Lab</a>
+  <ul>
+  <li><a href="#support-vector-classifier" id="toc-support-vector-classifier" class="nav-link" data-scroll-target="#support-vector-classifier">Support Vector Classifier</a></li>
+  <li><a href="#support-vector-machine" id="toc-support-vector-machine" class="nav-link" data-scroll-target="#support-vector-machine">Support Vector Machine</a></li>
+  <li><a href="#roc-curves" id="toc-roc-curves" class="nav-link" data-scroll-target="#roc-curves">ROC Curves</a></li>
+  <li><a href="#svm-with-multiple-classes" id="toc-svm-with-multiple-classes" class="nav-link" data-scroll-target="#svm-with-multiple-classes">SVM with Multiple Classes</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -2350,8 +2356,324 @@ lstat   27.129817    6027.63740</code></pre>
 </section>
 <section id="lab-1" class="level3">
 <h3 class="anchored" data-anchor-id="lab-1">Lab</h3>
+<section id="support-vector-classifier" class="level4">
+<h4 class="anchored" data-anchor-id="support-vector-classifier">Support Vector Classifier</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb261"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb261-1"><a href="#cb261-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span>
+<span id="cb261-2"><a href="#cb261-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb261-3"><a href="#cb261-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Create dataset</span></span>
+<span id="cb261-4"><a href="#cb261-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb261-5"><a href="#cb261-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">20</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb261-6"><a href="#cb261-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">10</span>),<span class="fu">rep</span>(<span class="dv">1</span>,<span class="dv">10</span>))</span>
+<span id="cb261-7"><a href="#cb261-7" aria-hidden="true" tabindex="-1"></a>x[y <span class="sc">==</span> <span class="dv">1</span>, ] <span class="ot">&lt;-</span> x[y <span class="sc">==</span> <span class="dv">1</span>]<span class="sc">+</span><span class="dv">1</span></span>
+<span id="cb261-8"><a href="#cb261-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="at">col =</span> (<span class="dv">3</span><span class="sc">-</span>y))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb262"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb262-1"><a href="#cb262-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Response must be a factor</span></span>
+<span id="cb262-2"><a href="#cb262-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="fu">as.factor</span>(y))</span>
+<span id="cb262-3"><a href="#cb262-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Use scale = TRUE to scale each factor to have mean of 0 and sd of 1</span></span>
+<span id="cb262-4"><a href="#cb262-4" aria-hidden="true" tabindex="-1"></a>svmfit <span class="ot">&lt;-</span> <span class="fu">svm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> dat, <span class="at">kernel =</span> <span class="st">"linear"</span>, <span class="at">cost =</span> <span class="dv">10</span>, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb262-5"><a href="#cb262-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb262-6"><a href="#cb262-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svmfit, dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-59-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb263"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb263-1"><a href="#cb263-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Print the support vectors</span></span>
+<span id="cb263-2"><a href="#cb263-2" aria-hidden="true" tabindex="-1"></a>svmfit<span class="sc">$</span>index</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  1  2  5  7 14 16 17</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb265"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb265-1"><a href="#cb265-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+svm(formula = y ~ ., data = dat, kernel = "linear", cost = 10, scale = FALSE)
 
 
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  linear 
+       cost:  10 
+
+Number of Support Vectors:  7
+
+ ( 4 3 )
+
+
+Number of Classes:  2 
+
+Levels: 
+ -1 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb267"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb267-1"><a href="#cb267-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Try using a smaller value for cost:</span></span>
+<span id="cb267-2"><a href="#cb267-2" aria-hidden="true" tabindex="-1"></a>svmfit <span class="ot">&lt;-</span> <span class="fu">svm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> dat, <span class="at">kernel =</span> <span class="st">"linear"</span>, <span class="at">cost =</span> <span class="fl">0.1</span>, <span class="at">scale =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb267-3"><a href="#cb267-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb267-4"><a href="#cb267-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svmfit, dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-60-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb268"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb268-1"><a href="#cb268-1" aria-hidden="true" tabindex="-1"></a>svmfit<span class="sc">$</span>index</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1]  1  2  3  4  5  7  9 10 12 13 14 15 16 17 18 20</code></pre>
+</div>
+</div>
+<p>The <code>tune()</code> function performs 10-fold cross validation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb270"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb270-1"><a href="#cb270-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb270-2"><a href="#cb270-2" aria-hidden="true" tabindex="-1"></a>tune.out <span class="ot">&lt;-</span> <span class="fu">tune</span>(svm, y<span class="sc">~</span>., <span class="at">data =</span> dat, <span class="at">kernel =</span> <span class="st">"linear"</span>, <span class="at">ranges =</span> <span class="fu">list</span>(<span class="at">cost =</span> <span class="fu">c</span>(<span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">100</span>)))</span>
+<span id="cb270-3"><a href="#cb270-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb270-4"><a href="#cb270-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tune.out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Parameter tuning of 'svm':
+
+- sampling method: 10-fold cross validation 
+
+- best parameters:
+ cost
+  0.1
+
+- best performance: 0.05 
+
+- Detailed performance results:
+   cost error dispersion
+1 1e-03  0.55  0.4377975
+2 1e-02  0.55  0.4377975
+3 1e-01  0.05  0.1581139
+4 1e+00  0.15  0.2415229
+5 5e+00  0.15  0.2415229
+6 1e+01  0.15  0.2415229
+7 1e+02  0.15  0.2415229</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb272"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb272-1"><a href="#cb272-1" aria-hidden="true" tabindex="-1"></a>bestmod <span class="ot">&lt;-</span> tune.out<span class="sc">$</span>best.model</span>
+<span id="cb272-2"><a href="#cb272-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bestmod)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+best.tune(METHOD = svm, train.x = y ~ ., data = dat, ranges = list(cost = c(0.001, 
+    0.01, 0.1, 1, 5, 10, 100)), kernel = "linear")
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  linear 
+       cost:  0.1 
+
+Number of Support Vectors:  16
+
+ ( 8 8 )
+
+
+Number of Classes:  2 
+
+Levels: 
+ -1 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb274"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb274-1"><a href="#cb274-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Generate test dataset</span></span>
+<span id="cb274-2"><a href="#cb274-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb274-3"><a href="#cb274-3" aria-hidden="true" tabindex="-1"></a>xtest <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">20</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb274-4"><a href="#cb274-4" aria-hidden="true" tabindex="-1"></a>ytest <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="dv">20</span>, <span class="at">rep =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb274-5"><a href="#cb274-5" aria-hidden="true" tabindex="-1"></a>xtest[ytest <span class="sc">==</span> <span class="dv">1</span>, ] <span class="ot">&lt;-</span> xtest[ytest <span class="sc">==</span> <span class="dv">1</span>, ] <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb274-6"><a href="#cb274-6" aria-hidden="true" tabindex="-1"></a>testdat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> xtest, <span class="at">y =</span> <span class="fu">as.factor</span>(ytest))</span>
+<span id="cb274-7"><a href="#cb274-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb274-8"><a href="#cb274-8" aria-hidden="true" tabindex="-1"></a>ypred <span class="ot">&lt;-</span> <span class="fu">predict</span>(bestmod, testdat)</span>
+<span id="cb274-9"><a href="#cb274-9" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="at">predict =</span> ypred, <span class="at">truth =</span> testdat<span class="sc">$</span>y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       truth
+predict -1 1
+     -1  9 3
+     1   2 6</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb276"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb276-1"><a href="#cb276-1" aria-hidden="true" tabindex="-1"></a><span class="co">#make </span></span>
+<span id="cb276-2"><a href="#cb276-2" aria-hidden="true" tabindex="-1"></a>x[y <span class="sc">==</span> <span class="dv">1</span>, ] <span class="ot">&lt;-</span> x[y <span class="sc">==</span> <span class="dv">1</span>, ] <span class="sc">+</span> <span class="fl">0.5</span></span>
+<span id="cb276-3"><a href="#cb276-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="at">col =</span> (y <span class="sc">+</span> <span class="dv">5</span>) <span class="sc">/</span> <span class="dv">2</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-62-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb277"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb277-1"><a href="#cb277-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="fu">as.factor</span>(y))</span>
+<span id="cb277-2"><a href="#cb277-2" aria-hidden="true" tabindex="-1"></a>svmfit <span class="ot">&lt;-</span> <span class="fu">svm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> dat, <span class="at">kernel =</span> <span class="st">"linear"</span>, <span class="at">cost =</span> <span class="fl">1e5</span>)</span>
+<span id="cb277-3"><a href="#cb277-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+svm(formula = y ~ ., data = dat, kernel = "linear", cost = 1e+05)
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  linear 
+       cost:  1e+05 
+
+Number of Support Vectors:  3
+
+ ( 1 2 )
+
+
+Number of Classes:  2 
+
+Levels: 
+ -1 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb279"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb279-1"><a href="#cb279-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svmfit, dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-62-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb280"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb280-1"><a href="#cb280-1" aria-hidden="true" tabindex="-1"></a>svmfit <span class="ot">&lt;-</span> <span class="fu">svm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> dat, <span class="at">kernel =</span> <span class="st">"linear"</span>, <span class="at">cost =</span> <span class="dv">1</span>)</span>
+<span id="cb280-2"><a href="#cb280-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+svm(formula = y ~ ., data = dat, kernel = "linear", cost = 1)
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  linear 
+       cost:  1 
+
+Number of Support Vectors:  7
+
+ ( 4 3 )
+
+
+Number of Classes:  2 
+
+Levels: 
+ -1 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb282"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb282-1"><a href="#cb282-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svmfit, dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-62-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="support-vector-machine" class="level4">
+<h4 class="anchored" data-anchor-id="support-vector-machine">Support Vector Machine</h4>
+<p>To fit an SVM with a polynomial kernel we use kernel = “polynomial”, and to fit an SVM with a radial kernel we use kernel = “radial”. In the former case we also use the degree argument to specify a degree for the polynomial kernel (this is d in (9.22)), and in the latter case we use gamma to specify a value of γ for the radial basis kernel (9.24).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb283"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb283-1"><a href="#cb283-1" aria-hidden="true" tabindex="-1"></a><span class="co">#generate data</span></span>
+<span id="cb283-2"><a href="#cb283-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb283-3"><a href="#cb283-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">200</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb283-4"><a href="#cb283-4" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, ] <span class="ot">&lt;-</span> x[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, ] <span class="sc">+</span> <span class="dv">2</span></span>
+<span id="cb283-5"><a href="#cb283-5" aria-hidden="true" tabindex="-1"></a>x[<span class="dv">101</span><span class="sc">:</span><span class="dv">150</span>, ] <span class="ot">&lt;-</span> x[<span class="dv">101</span><span class="sc">:</span><span class="dv">150</span>, ] <span class="sc">-</span> <span class="dv">2</span></span>
+<span id="cb283-6"><a href="#cb283-6" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">150</span>), <span class="fu">rep</span>(<span class="dv">2</span>, <span class="dv">50</span>))</span>
+<span id="cb283-7"><a href="#cb283-7" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> <span class="fu">as.factor</span>(y))</span>
+<span id="cb283-8"><a href="#cb283-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb283-9"><a href="#cb283-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(x, <span class="at">col =</span> y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-63-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb284"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb284-1"><a href="#cb284-1" aria-hidden="true" tabindex="-1"></a><span class="co">#split the data</span></span>
+<span id="cb284-2"><a href="#cb284-2" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">200</span>,<span class="dv">100</span>)</span>
+<span id="cb284-3"><a href="#cb284-3" aria-hidden="true" tabindex="-1"></a>svmfit <span class="ot">&lt;-</span> svmfit <span class="ot">&lt;-</span> <span class="fu">svm</span>(y <span class="sc">~</span> ., <span class="at">data =</span> dat[train, ], <span class="at">kernel =</span> <span class="st">"radial"</span>, <span class="at">gamma =</span> <span class="dv">1</span>, <span class="at">cost =</span> <span class="dv">1</span>)</span>
+<span id="cb284-4"><a href="#cb284-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(svmfit, dat[train, ])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-63-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb285"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb285-1"><a href="#cb285-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(svmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+svm(formula = y ~ ., data = dat[train, ], kernel = "radial", gamma = 1, 
+    cost = 1)
+
+
+Parameters:
+   SVM-Type:  C-classification 
+ SVM-Kernel:  radial 
+       cost:  1 
+
+Number of Support Vectors:  31
+
+ ( 16 15 )
+
+
+Number of Classes:  2 
+
+Levels: 
+ 1 2</code></pre>
+</div>
+</div>
+<p>Increasing the value of cost can reduce training error, but at the risk of overfitting.</p>
+<p>The tune function can perform cross validation for both gamma and cost on an SVM with a radial kernel:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb287"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb287-1"><a href="#cb287-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb287-2"><a href="#cb287-2" aria-hidden="true" tabindex="-1"></a>tune.out <span class="ot">&lt;-</span> <span class="fu">tune</span>(svm, y<span class="sc">~</span>., <span class="at">data =</span> dat[train, ],</span>
+<span id="cb287-3"><a href="#cb287-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">kernel =</span> <span class="st">"radial"</span>,</span>
+<span id="cb287-4"><a href="#cb287-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ranges =</span> <span class="fu">list</span>(</span>
+<span id="cb287-5"><a href="#cb287-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">cost =</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1000</span>),</span>
+<span id="cb287-6"><a href="#cb287-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">gamma =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>)</span>
+<span id="cb287-7"><a href="#cb287-7" aria-hidden="true" tabindex="-1"></a>                 )</span>
+<span id="cb287-8"><a href="#cb287-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb287-9"><a href="#cb287-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tune.out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Parameter tuning of 'svm':
+
+- sampling method: 10-fold cross validation 
+
+- best parameters:
+ cost gamma
+    1   0.5
+
+- best performance: 0.07 
+
+- Detailed performance results:
+    cost gamma error dispersion
+1  1e-01   0.5  0.26 0.15776213
+2  1e+00   0.5  0.07 0.08232726
+3  1e+01   0.5  0.07 0.08232726
+4  1e+02   0.5  0.14 0.15055453
+5  1e+03   0.5  0.11 0.07378648
+6  1e-01   1.0  0.22 0.16193277
+7  1e+00   1.0  0.07 0.08232726
+8  1e+01   1.0  0.09 0.07378648
+9  1e+02   1.0  0.12 0.12292726
+10 1e+03   1.0  0.11 0.11005049
+11 1e-01   2.0  0.27 0.15670212
+12 1e+00   2.0  0.07 0.08232726
+13 1e+01   2.0  0.11 0.07378648
+14 1e+02   2.0  0.12 0.13165612
+15 1e+03   2.0  0.16 0.13498971
+16 1e-01   3.0  0.27 0.15670212
+17 1e+00   3.0  0.07 0.08232726
+18 1e+01   3.0  0.08 0.07888106
+19 1e+02   3.0  0.13 0.14181365
+20 1e+03   3.0  0.15 0.13540064
+21 1e-01   4.0  0.27 0.15670212
+22 1e+00   4.0  0.07 0.08232726
+23 1e+01   4.0  0.09 0.07378648
+24 1e+02   4.0  0.13 0.14181365
+25 1e+03   4.0  0.15 0.13540064</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb289"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb289-1"><a href="#cb289-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Predict using the best model</span></span>
+<span id="cb289-2"><a href="#cb289-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(</span>
+<span id="cb289-3"><a href="#cb289-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">true =</span> dat[<span class="sc">-</span>train, <span class="st">"y"</span>],</span>
+<span id="cb289-4"><a href="#cb289-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred =</span> <span class="fu">predict</span>(</span>
+<span id="cb289-5"><a href="#cb289-5" aria-hidden="true" tabindex="-1"></a>    tune.out<span class="sc">$</span>best.model, <span class="at">newdata =</span> dat[<span class="sc">-</span>train,]</span>
+<span id="cb289-6"><a href="#cb289-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb289-7"><a href="#cb289-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    pred
+true  1  2
+   1 67 10
+   2  2 21</code></pre>
+</div>
+</div>
+</section>
+<section id="roc-curves" class="level4">
+<h4 class="anchored" data-anchor-id="roc-curves">ROC Curves</h4>
+</section>
+<section id="svm-with-multiple-classes" class="level4">
+<h4 class="anchored" data-anchor-id="svm-with-multiple-classes">SVM with Multiple Classes</h4>
+
+
+</section>
 </section>
 </section>
 
