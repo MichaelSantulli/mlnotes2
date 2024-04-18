@@ -1161,7 +1161,9 @@ table(tree.pred, High.test)
 #Calculate percentage of correct predictions
 (104+50)/200
 ```
+
 **Tree Pruning**
+
 ```{r}
 set.seed(7)
 cv.carseats <- cv.tree(tree.carseats, FUN = prune.misclass)
@@ -1183,9 +1185,11 @@ table(tree.pred, High.test)
 (97+58)/200
 
 ```
-The pruned tree is more interpretable and slightly more accurate for prediction. 
+
+The pruned tree is more interpretable and slightly more accurate for prediction.
 
 #### Fitting Regression Trees
+
 ```{r}
 set.seed(1)
 train <- sample(1:nrow(Boston), nrow(Boston)/2)
@@ -1199,6 +1203,7 @@ text(tree.boston, pretty = 0)
 cv.boston <- cv.tree(tree.boston)
 plot(cv.boston$size, cv.boston$dev, type = "b")
 ```
+
 The most complex tree is also the best in this case (7 branches). If we did need to prune the tree, we'd use this method (example of 5 branches):
 
 ```{r}
@@ -1215,8 +1220,8 @@ mean((yhat - boston.test)^2)
 
 ```
 
-
 #### Bagging & Random Forests
+
 Bagging is a special case of random forest where *m* = *p*, so the `randomForest` package can be used for both techniques.
 
 ```{r}
@@ -1228,6 +1233,7 @@ bag.boston <- randomForest(medv ~ ., data = Boston, subset = train, mtry = 12, i
 bag.boston
 
 ```
+
 The argument mtry = 12 indicates that all 12 predictors should be considered for each split of the tree—in other words, that bagging should be done. How well does this bagged model perform on the test set?
 
 ```{r}
@@ -1242,7 +1248,7 @@ yhat.bag <- predict(bag.boston, newdata = Boston[-train, ])
 mean((yhat.bag - boston.test)^2)
 ```
 
-Growing a random forest proceeds in exactly the same way, except that we use a smaller value of the mtry argument. By default, randomForest() uses p/3 variables when building a random forest of regression trees, and √p variables when building a random forest of classification trees. 
+Growing a random forest proceeds in exactly the same way, except that we use a smaller value of the mtry argument. By default, randomForest() uses p/3 variables when building a random forest of regression trees, and √p variables when building a random forest of classification trees.
 
 ```{r}
 #Using the Random Forest method
@@ -1252,14 +1258,15 @@ yhat.rf <- predict(rf.boston, newdata = Boston[-train, ])
 mean((yhat.rf - boston.test)^2)
 
 ```
+
 Use the `importance()` function to view the importance of each variable
+
 ```{r}
 importance(rf.boston)
 
 #Plot the importance measures
 varImpPlot(rf.boston)
 ```
-
 
 #### Boosting
 
@@ -1312,7 +1319,9 @@ varImpPlot(rf.boston)
 4.  
 
 ### Lab
+
 #### Support Vector Classifier
+
 ```{r}
 library(e1071)
 
@@ -1337,8 +1346,6 @@ summary(svmfit)
 
 ```
 
-
-
 ```{r}
 #Try using a smaller value for cost:
 svmfit <- svm(y ~ ., data = dat, kernel = "linear", cost = 0.1, scale = FALSE)
@@ -1349,6 +1356,7 @@ svmfit$index
 ```
 
 The `tune()` function performs 10-fold cross validation:
+
 ```{r}
 set.seed(1)
 tune.out <- tune(svm, y~., data = dat, kernel = "linear", ranges = list(cost = c(0.001, 0.01, 0.1, 1, 5, 10, 100)))
@@ -1386,9 +1394,10 @@ summary(svmfit)
 plot(svmfit, dat)
 ```
 
-
 #### Support Vector Machine
+
 To fit an SVM with a polynomial kernel we use kernel = "polynomial", and to fit an SVM with a radial kernel we use kernel = "radial". In the former case we also use the degree argument to specify a degree for the polynomial kernel (this is d in (9.22)), and in the latter case we use gamma to specify a value of γ for the radial basis kernel (9.24).
+
 ```{r}
 #generate data
 set.seed(1)
@@ -1408,9 +1417,11 @@ plot(svmfit, dat[train, ])
 summary(svmfit)
 
 ```
+
 Increasing the value of cost can reduce training error, but at the risk of overfitting.
 
-The tune function can perform cross validation for both gamma and cost on an SVM with a radial kernel: 
+The tune function can perform cross validation for both gamma and cost on an SVM with a radial kernel:
+
 ```{r}
 set.seed(1)
 tune.out <- tune(svm, y~., data = dat[train, ],
@@ -1432,7 +1443,34 @@ table(
 
 ```
 
-
 #### ROC Curves
+
 #### SVM with Multiple Classes
 
+## Ch 10: Deep Learning
+
+## Ch 12: Unsupervised Learning
+
+### Notes
+
+PCA Review
+
+Applications of Unsupervised Learning:
+
+-   Anomaly detection
+
+-   Customer segmentation
+
+-   Recommendation engines
+
+-   Image and video analysis
+
+-   Natural language processing (NLP)
+
+Clustering Methods
+
+1.  K-means clustering
+    -   Requires you to choose a value for K. There isn't any commonly used value, but you can bring in a subject matter expert to help determine the best value for a specific set of data
+2.  Hierarchical clustering
+    -   Advantage over k-means clustering in that you don't have to specify the number of clusters in advance
+    -   Results in a tree based diagram called a dendrogram
